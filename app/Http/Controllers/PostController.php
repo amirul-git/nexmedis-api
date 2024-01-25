@@ -22,10 +22,11 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        return response()->json($request);
         $user = $this->decodeJWT($request);
 
         $post = new Post();
-        $post->caption = $request->caption;;
+        $post->caption = $request->caption;
         $post->user_id = $user->id;
         $post->photo = $request->file('photo')->store('photos');
         $post->save();
