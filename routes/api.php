@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\PostController;
+use App\Http\Middleware\ApiAuth;
 use App\Models\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -70,6 +72,7 @@ Route::post('/login', function (Request $request) {
     // generate token
     $key = env('JWT_SECRETS');
     $payload = [
+        'id' => $user->id,
         'name' => $user->name,
         'email' => $user->email,
     ];
@@ -79,10 +82,12 @@ Route::post('/login', function (Request $request) {
     return response()->json([
         "status" => 200,
         "data" => [
-            "name" => $user->name,
-            "email" => $user->email,
+            ...$payload,
             "token" => $jwt
         ],
         "message" => "User login"
     ]);
 });
+
+Route::apiResource('posts', PostController::class)->only('index');
+Route::apiResource('posts', PostController::class)->except('index')->middleware(ApiAuth::class);
