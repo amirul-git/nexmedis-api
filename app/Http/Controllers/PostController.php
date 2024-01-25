@@ -36,6 +36,15 @@ class PostController extends Controller
                         "created_at" => $comment->created_at
                     ];
                 }),
+                "likes" => $post->likes->map(function ($like) {
+                    return [
+                        "id" => $like->id,
+                        "user" => [
+                            "id" => $like->user->id,
+                            "name" => $like->user->name
+                        ]
+                    ];
+                }),
                 "created_at" => $post->created_at
             ]);
         });
