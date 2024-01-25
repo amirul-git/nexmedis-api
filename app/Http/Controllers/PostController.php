@@ -25,7 +25,16 @@ class PostController extends Controller
                     "id" => $post->user->id,
                     "name" => $post->user->name,
                     "email" => $post->user->email
-                ]
+                ],
+                "comments" => $post->comments->map(function ($comment) {
+                    return [
+                        "text" => $comment->text,
+                        "user" => [
+                            "id" => $comment->user->id,
+                            "name" => $comment->user->name
+                        ]
+                    ];
+                })
             ]);
         });
 
@@ -43,7 +52,6 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        return response()->json($request);
         $user = $this->decodeJWT($request);
 
         $post = new Post();

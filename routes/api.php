@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Middleware\ApiAuth;
 use App\Models\User;
@@ -91,3 +92,5 @@ Route::post('/login', function (Request $request) {
 
 Route::apiResource('posts', PostController::class)->only('index');
 Route::apiResource('posts', PostController::class)->except('index')->middleware(ApiAuth::class);
+
+Route::apiResource('posts.comments', CommentController::class)->only('store');
