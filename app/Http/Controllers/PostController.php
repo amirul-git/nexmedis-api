@@ -32,9 +32,11 @@ class PostController extends Controller
                         "user" => [
                             "id" => $comment->user->id,
                             "name" => $comment->user->name
-                        ]
+                        ],
+                        "created_at" => $comment->created_at
                     ];
-                })
+                }),
+                "created_at" => $post->created_at
             ]);
         });
 
