@@ -15,6 +15,27 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
+        $posts = Post::all();
+        $posts = $posts->map(function ($post) {
+            return collect([
+                "id" => $post->id,
+                "caption" => $post->caption,
+                "photo" => $post->photo,
+                "user" => [
+                    "id" => $post->user->id,
+                    "name" => $post->user->name,
+                    "email" => $post->user->email
+                ]
+            ]);
+        });
+
+        return response()->json(
+            [
+                "status" => 200,
+                "data" => $posts,
+                "message" => "Post created"
+            ]
+        );
     }
 
     /**
