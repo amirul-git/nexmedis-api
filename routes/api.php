@@ -94,6 +94,8 @@ Route::post('/login', function (Request $request) {
 Route::apiResource('posts', PostController::class)->only('index');
 Route::apiResource('posts', PostController::class)->except('index')->middleware(ApiAuth::class);
 
+Route::get('/user/posts/', [PostController::class, 'me']);
+
 Route::apiResource('posts.comments', CommentController::class)->only('store');
 
 Route::apiResource('posts.likes', LikeController::class)->only('store', 'destroy');

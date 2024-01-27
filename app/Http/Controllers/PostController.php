@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use Carbon\Carbon;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Http\Request;
@@ -13,6 +14,52 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+    public function me(Request $request)
+    {
+        $user = $this->decodeJWT($request);
+        $posts = Post::where('user_id', $user->id)->get();
+        $posts = $posts->map(function ($post) {
+            return collect([
+                "id" => $post->id,
+                "caption" => $post->caption,
+                "photo" => $post->photo,
+                "user" => [
+                    "id" => $post->user->id,
+                    "name" => $post->user->name,
+                    "email" => $post->user->email
+                ],
+                "comments" => $post->comments->map(function ($comment) {
+                    return [
+                        "text" => $comment->text,
+                        "user" => [
+                            "id" => $comment->user->id,
+                            "name" => $comment->user->name
+                        ],
+                        "created_at" => Carbon::parse($comment->created_at)->format('d M Y')
+                    ];
+                }),
+                "likes" => $post->likes->map(function ($like) {
+                    return [
+                        "id" => $like->id,
+                        "user" => [
+                            "id" => $like->user->id,
+                            "name" => $like->user->name
+                        ]
+                    ];
+                }),
+                "created_at" => Carbon::parse($post->created_at)->format('d M Y')
+            ]);
+        });
+        return response()->json([
+            [
+                "status" => 200,
+                "data" => $posts,
+                "message" => "Post created"
+            ]
+        ]);
+    }
+
     public function index(Request $request)
     {
         $posts = Post::all();
@@ -45,7 +92,7 @@ class PostController extends Controller
                         ]
                     ];
                 }),
-                "created_at" => $post->created_at
+                "created_at" => Carbon::parse($post->created_at)->format('d M Y')
             ]);
         });
 
@@ -95,6 +142,15 @@ class PostController extends Controller
     public function show(Request $request, Post $post)
     {
         $user = $this->decodeJWT($request);
+
+        if ($user->id !== $post->user->id) {
+            return response()->json([
+                "status" => 304,
+                "data" => [],
+                "message" => "Not your resource, redirected to home"
+            ]);
+        }
+
         return response()->json(
             [
                 "status" => 200,
@@ -103,9 +159,9 @@ class PostController extends Controller
                     "caption" => $post->caption,
                     "photo" => $post->photo,
                     "user" => [
-                        "id" => $user->id,
-                        "name" => $user->name,
-                        "email" => $user->email
+                        "id" => $post->user->id,
+                        "name" => $post->user->name,
+                        "email" => $post->user->email
                     ]
                 ],
                 "message" => "Post displayed"
@@ -148,7 +204,9 @@ class PostController extends Controller
     {
         $user = $this->decodeJWT($request);
 
-        Storage::disk('public')->delete($post->photo);
+        // Storage::disk('public')->delete($post->photo);
+        // $post->delete();
+
         $post->delete();
 
         return response()->json(
