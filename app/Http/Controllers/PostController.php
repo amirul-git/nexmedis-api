@@ -55,7 +55,7 @@ class PostController extends Controller
             [
                 "status" => 200,
                 "data" => $posts,
-                "message" => "Post created"
+                "message" => "Post displayed"
             ]
         ]);
     }
@@ -100,7 +100,7 @@ class PostController extends Controller
             [
                 "status" => 200,
                 "data" => $posts,
-                "message" => "Post created"
+                "message" => "Posts displayed"
             ]
         );
     }
